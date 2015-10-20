@@ -44,10 +44,15 @@ var UserCtrl = (function (_super) {
                     return res.status(500).send({ message: 'Internal server error. ' + JSON.stringify(err) });
                 if (!usr)
                     return res.status(401).send({ message: 'Invalid credentials' });
-                usr.comparePassword(data.password, function (err, res) {
+                usr.comparePassword(data.password, function (err, result) {
                     if (err)
                         return res.status(500).send({ message: 'Internal server error. ' + JSON.stringify(err) });
-                    return _this.createToken(usr, req, res);
+                    if (result) {
+                        return _this.createToken(usr, req, res);
+                    }
+                    else {
+                        return res.status(401).send({ message: 'Invalid credentials' });
+                    }
                 });
             });
         };

@@ -30,6 +30,7 @@ userSchema.pre('save', function (next) {
 userSchema.methods.toJSON = function () {
     var user = this.toObject();
     delete user.password;
+    delete user.salt;
     return user;
 };
 userSchema.methods.comparePassword = function (pass, cb) {

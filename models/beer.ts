@@ -48,12 +48,12 @@ export interface IHop extends IIngredient {
 }
 
 export interface ICheers {
-	user: mongoose.Schema.Types.ObjectId;
+	user: mongoose.Types.ObjectId;
 	dateTime: Date;
 }
 
 export interface IComment {
-	user: mongoose.Schema.Types.ObjectId;
+	user: mongoose.Types.ObjectId;
 	dateTime: Date;
 	comment: string,
 	cheers: ICheers[]
@@ -61,12 +61,12 @@ export interface IComment {
 
 export interface IBeer extends mongoose.Document {
 	name: string;
-	author: mongoose.Schema.Types.ObjectId;
+	author: mongoose.Types.ObjectId;
 	createdAt: Date;
 	cheers: ICheers[];
 	comments: IComment[];
 	malts: IIngredient[];
-	yeast: IIngredient[];
+	yeasts: IIngredient[];
 	hops: IHop[];
 	recipe: string;
 }

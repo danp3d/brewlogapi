@@ -6,9 +6,10 @@ import user = require('../models/user');
 import base = require('./base');
 import mongoose = require('mongoose');
 import jwt = require('jwt-simple');
+import express = require('express');
 
 class UserCtrl extends base.BaseCtrl {
-	private createToken = (user: user.IUser, req: Express.Request, res: Express.Response) => {
+	private createToken = (user: user.IUser, req: express.Request, res: express.Response) => {
         // Generate token
         var payload = { iss: req.hostname, sub: user.id }
         var token = jwt.encode(payload, this.secret);
@@ -16,7 +17,7 @@ class UserCtrl extends base.BaseCtrl {
 		res.status(200).send({ 'user': user.toJSON(), 'token': token });
 	}
 	
-	public register = (req: Express.Request, res: Express.Response) => {
+	public register = (req: express.Request, res: express.Response) => {
 		var data = req.body;
 		
 		if (data.email && data.password && data.name) {
@@ -38,7 +39,7 @@ class UserCtrl extends base.BaseCtrl {
 		}
 	};
 	
-	public login = (req: Express.Request, res: Express.Response) => {
+	public login = (req: express.Request, res: express.Response) => {
 		var data = req.body;
 		
 		user.User.findOne({ 'email': data.email }).exec((err, usr) => {
@@ -48,11 +49,15 @@ class UserCtrl extends base.BaseCtrl {
 			if (!usr) 
 				return res.status(401).send({ message: 'Invalid credentials' });
 				
-			usr.comparePassword(data.password, (err, res) => {
+			usr.comparePassword(data.password, (err, result) => {
 				if (err)
 					return res.status(500).send({ message: 'Internal server error. ' + JSON.stringify(err) });
-					
-				return this.createToken(usr, req, res);
+				
+				if (result) {
+					return this.createToken(usr, req, res);
+				} else {
+					return res.status(401).send({ message: 'Invalid credentials' });
+				}
 			});
 		});
 	}

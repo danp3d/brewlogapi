@@ -51,6 +51,7 @@ userSchema.pre('save', function (next) {
 userSchema.methods.toJSON = function () {
 	var user = <IUser>this.toObject();
 	delete user.password;
+	delete user.salt;
 	return user;
 };
 

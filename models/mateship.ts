@@ -6,8 +6,8 @@ var mateshipSchema:mongoose.Schema = new mongoose.Schema({
 });
 
 export interface IMateship extends mongoose.Document {
-	user1: mongoose.Schema.Types.ObjectId,
-	user2: mongoose.Schema.Types.ObjectId
+	user1: mongoose.Types.ObjectId,
+	user2: mongoose.Types.ObjectId
 }
 
 export interface IMateshipModel extends IMateship, mongoose.Document { }
