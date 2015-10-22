@@ -102,7 +102,159 @@ class BeerCtrl extends base.BaseCtrl {
 			
 			return res.status(200).send({ message: 'Beer deleted', "beer": b });
 		});
-	}
+	};
+	
+	public getBeerCheers = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		
+		beer.Beer.findById(beer_id).populate('author').exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Internal server error. ' + JSON.stringify(err) });
+			}
+			
+			return res.status(200).send({ "cheers": b.cheers });
+		});
+	};
+	
+	public createBeerCheers = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		
+		beer.Beer.findById(beer_id).populate('author').exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Error searching for beer. ' + JSON.stringify(err) });
+			}
+			
+			b.cheers.push({
+				"user": new mongoose.Types.ObjectId(user_id),
+				"dateTime": new Date()
+			});
+			
+			b.save((err, newB) => {
+				if (err) {
+					return res.status(500).send({ message: 'Error saving new cheers to beer. ' + JSON.stringify(err) });
+				}
+				
+				return res.status(200).send({ message: 'Cheers saved.', "beer": newB });
+			});
+		});
+	};
+	
+	public getBeerComments = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		
+		beer.Beer.findById(beer_id).populate('author').exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Internal server error. ' + JSON.stringify(err) });
+			}
+			
+			return res.status(200).send({ "comments": b.comments });
+		});
+	};
+	
+	public createBeerComment = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		
+		if (!req.body.comment)
+			return res.status(500).send({ message: 'Comment is mandatory' });
+		
+		beer.Beer.findById(beer_id).populate('author').exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Error searching for beer. ' + JSON.stringify(err) });
+			}
+			
+			b.comments.push({
+				"user": new mongoose.Types.ObjectId(user_id),
+				"dateTime": new Date(),
+				"comment": req.body.comment,
+				"cheers": []
+			});
+			
+			b.save((err, newB) => {
+				if (err) {
+					return res.status(500).send({ message: 'Error saving new cheers to beer. ' + JSON.stringify(err) });
+				}
+				
+				return res.status(200).send({ message: 'Cheers saved.', "beer": newB });
+			});
+		});
+	};
+	
+	public getBeerComment = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		var comment_id = req.params.comment_id;
+		
+		beer.Beer.findById(beer_id).exec((err, b) => {
+			if (err)
+				return res.status(500).send({ message: 'Unable to find beer. ' + JSON.stringify(err) });
+				
+			return res.status(200).send({ "comment": b.comments.id(comment_id) });
+		});
+	};
+	
+	public updateBeerComment = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		var comment_id = req.params.comment_id;
+		var body = <beer.IComment>req.body;
+		
+		beer.Beer.findById(beer_id).exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Error searching for beer. ' + JSON.stringify(err) });
+			}
+			
+			b.comments.id(comment_id).comment = body.comment;
+			b.save((err, newB) => {
+				if (err)
+					return res.status(500).send({ message: 'Error updating comment. ' + JSON.stringify(err) });
+					
+				return res.status(200).send({ message: 'Comment saved.', "beer": b });
+			});
+		});
+	};
+	
+	public deleteBeerComment = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		var comment_id = req.params.comment_id;
+		
+		beer.Beer.findByIdAndUpdate(beer_id, { '$pull': { 'comments': { '_id': new mongoose.Types.ObjectId(comment_id) }}}).exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Error searching for beer. ' + JSON.stringify(err) });
+			}
+				
+			return res.status(200).send({ message: 'Comment saved.', "beer": b });
+		});
+	};
+	
+	public createBeerCommentCheers = (req: express.Request, res: express.Response) => {
+		var user_id = this.getUserId(req, res);
+		var beer_id = req.params.beer_id;
+		var comment_id = req.params.comment_id;
+		
+		beer.Beer.findById(beer_id).populate('author').exec((err, b) => {
+			if (err) {
+				return res.status(500).send({ message: 'Error searching for beer. ' + JSON.stringify(err) });
+			}
+			
+			b.comments.cheers.push({
+				"user": new mongoose.Types.ObjectId(user_id),
+				"dateTime": new Date()
+			});
+			
+			b.save((err, newB) => {
+				if (err) {
+					return res.status(500).send({ message: 'Error saving new cheers to beer. ' + JSON.stringify(err) });
+				}
+				
+				return res.status(200).send({ message: 'Cheers saved.', "beer": newB });
+			});
+		});
+	};
 }
 
 export =  new BeerCtrl();

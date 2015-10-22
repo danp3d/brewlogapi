@@ -38,10 +38,24 @@ app.post('/user/login', usrCtrl.login);
 
 // Beers
 app.get('/beer', beerCtrl.getBeers);
-app.get('/beer/:beer_id', beerCtrl.getBeer);
 app.post('/beer', beerCtrl.createBeer);
+
+app.get('/beer/:beer_id', beerCtrl.getBeer);
 app.put('/beer/:beer_id', beerCtrl.updateBeer);
 app.delete('/beer/:beer_id', beerCtrl.deleteBeer);
+
+app.get('/beer/:beer_id/cheers', beerCtrl.getBeerCheers);
+app.post('/beer/:beer_id/cheers', beerCtrl.createBeerCheers);
+
+app.get('/beer/:beer_id/comment', beerCtrl.getBeerComments);
+app.post('/beer/:beer_id/comment', beerCtrl.createBeerComment);
+
+app.get('/beer/:beer_id/comment/:comment_id', beerCtrl.getBeerComment);
+app.put('/beer/:beer_id/comment/:comment_id', beerCtrl.updateBeerComment);
+app.delete('/beer/:beer_id/comment/:comment_id', beerCtrl.deleteBeerComment);
+app.post('/beer/:beer_id/comment/:comment_id/cheers', beerCtrl.createBeerCommentCheers);
+
+
 
 // Ping (test communication)
 app.get('/ping', function (req, res) {
