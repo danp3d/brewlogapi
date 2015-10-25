@@ -3,6 +3,7 @@ import bcrypt = require('bcrypt-nodejs');
 
 var userSchema:mongoose.Schema = new mongoose.Schema({
 	name: String,
+	email: String,
 	salt: String,
 	password: String,
 	following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
@@ -20,6 +21,7 @@ export interface IToken {
 
 export interface IUser extends mongoose.Document {
 	name: string;
+	email: string;
 	salt: string;
 	password: string;
 	bookmarks: mongoose.Types.ObjectId[];

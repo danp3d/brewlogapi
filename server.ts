@@ -12,13 +12,16 @@ import mongoose = require('mongoose');
 import bodyparser = require('body-parser');
 import usrCtrl = require('./controllers/user');
 import beerCtrl = require('./controllers/beer');
+import environment = require('./configs/environment');
 
 // Create the app object
 var app = express();
+console.log(process.env.NODE_ENV);
+var env = process.env.NODE_ENV || 'development';
 
 // Connect to MongoDB (hardcoded to a local instance)
 // TODO: create config object (development/production)
-mongoose.connect('mongodb://localhost/beerlog');
+mongoose.connect(environment[env].db);
 
 // Parse body (we'll only deal with JSON - no need o XML crap)
 app.use(bodyparser.json());
@@ -63,5 +66,6 @@ app.get('/ping', function (req, res) {
 });
 
 // Start the server. TODO: Config object (port);
-app.listen(3366);
-console.log('Brewlog API started. Listening on port 3366')
+app.listen(environment[env].port);
+console.log('Environment: ' + env);
+console.log('Brewlog API started. Listening on port ' + environment[env].port);
