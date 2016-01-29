@@ -1,19 +1,15 @@
-/// <reference path="../typings/node/node.d.ts" />
-/// <reference path="../typings/mime/mime.d.ts" />
-/// <reference path="../typings/mocha/mocha.d.ts" />
-/// <reference path="../typings/superagent/superagent.d.ts" />
-/// <reference path="../typings/supertest/supertest.d.ts" />
-/// <reference path="../typings/should/should.d.ts" />
-/// <reference path="../typings/mongoose/mongoose.d.ts" />
 var request = require('supertest');
 var mongoose = require('mongoose');
 var environment = require('./../configs/environment');
 var user = require('./../models/user');
 require('should');
+
 var url = 'http://localhost:3667';
 var deletedUsers = false;
 var deletedBeers = false;
+var login = null;
 var loginToken = '';
+
 describe('User', function () {
     before(function (done) {
         if (mongoose.connection.readyState <= 0)
@@ -27,6 +23,7 @@ describe('User', function () {
             });
         }
     });
+
     it('Should register new user', function (done) {
         var usr = {
             "email": "test@test.com.au",
@@ -37,14 +34,18 @@ describe('User', function () {
             .post('/user/register')
             .send(usr)
             .end(function (err, res) {
-            if (err)
-                throw err;
-            res.should.have.property('status', 200);
-            res.body.should.have.property('user');
-            res.body.should.have.property('token');
-            done();
-        });
+                if (err)
+                    throw err;
+                res.should.have.property('status', 200);
+                res.body.should.have.property('user');
+                res.body.should.have.property('token');
+
+                login = res.body.user;
+                loginToken = res.body.token;
+                done();
+            });
     });
+
     it('Should login user', function (done) {
         var login = {
             "email": "test@test.com.au",
@@ -54,14 +55,15 @@ describe('User', function () {
             .post('/user/login')
             .send(login)
             .end(function (err, res) {
-            if (err)
-                throw err;
-            res.should.have.property('status', 200);
-            res.body.should.have.property('user');
-            res.body.should.have.property('token');
-            done();
-        });
+                if (err)
+                    throw err;
+                res.should.have.property('status', 200);
+                res.body.should.have.property('user');
+                res.body.should.have.property('token');
+                done();
+            });
     });
+
     it('Should fail to login', function (done) {
         var login = {
             "email": "daniel.exe@gmail.com",
@@ -71,12 +73,51 @@ describe('User', function () {
             .post('/user/login')
             .send(login)
             .end(function (err, res) {
-            if (err)
-                throw err;
-            res.should.have.property('status', 401);
-            res.body.should.have.property('message');
-            done();
-        });
+                if (err)
+                    throw err;
+                res.should.have.property('status', 401);
+                res.body.should.have.property('message');
+                done();
+            });
+    });
+
+    it('Should add mates', function (done) {
+        var usr = {
+            "email": "test2@test.com.au",
+            "password": "newPass",
+            "name": "Has Mates"
+        };
+        request(url)
+            .post('/user/register')
+            .send(usr)
+            .end(function (err, res) {
+                if (err)
+                    throw err;
+                res.should.have.property('status', 200);
+                res.body.should.have.property('user');
+                res.body.should.have.property('token');
+
+                var newlogin = res.body.user;
+                var newToken = res.body.token;
+
+                request(url)
+                    .post('/user/mates')
+                    .set('Authorization', 'bearer ' + newToken)
+                    .send({
+                        mate: login._id
+                    })
+                    .end(function (err, res) {
+                        if (err) throw err;
+
+                        res.should.have.property('status', 200);
+                        res.body.should.have.property('user');
+                        res.body.user.should.have.property('mates');
+                        res.body.user.mates.length.should.equal(1);
+
+                        done();
+
+                    });
+            });
     });
 });
 //# sourceMappingURL=user.js.map

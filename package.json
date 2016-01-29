@@ -1,21 +1,23 @@
 {
-  "name": "brewlogapi",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "daniel.exe@gmail.com",
-  "license": "GPL-3.0",
-  "dependencies": {
-    "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.14.1",
-    "express": "^4.13.3",
-    "jwt-simple": "^0.3.1",
-    "mocha": "^2.3.3",
-    "mongoose": "^4.1.11",
-    "should": "^7.1.1",
-    "supertest": "^1.1.0"
-  }
+    "name": "brewlogapi",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "scripts": {
+        "test": "mocha --reporter spec"
+    },
+    "author": "daniel.exe@gmail.com",
+    "license": "GPL-3.0",
+    "devDependencies": {
+        "mocha": "^2.3.3",
+        "should": "^7.1.1",
+        "supertest": "^1.1.0"
+    },
+    "dependencies": {
+        "bcrypt-nodejs": "0.0.3",
+        "body-parser": "^1.14.1",
+        "express": "^4.13.3",
+        "jwt-simple": "^0.3.1",
+        "mongoose": "^4.1.11"
+    }
 }

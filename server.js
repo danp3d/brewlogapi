@@ -1,56 +1,6 @@
-/// <reference path="typings/node/node.d.ts" />
-/// <reference path="typings/express/express.d.ts" />
-/// <reference path="typings/body-parser/body-parser.d.ts" />
-/// <reference path="typings/mime/mime.d.ts" />
-/// <reference path="typings/mongoose/mongoose.d.ts" />
-/// <reference path="typings/serve-static/serve-static.d.ts" />
-/// <reference path="typings/jwt-simple/jwt-simple.d.ts" />
 // Imports
-var express = require('express');
-var mongoose = require('mongoose');
-var bodyparser = require('body-parser');
-var usrCtrl = require('./controllers/user');
-var beerCtrl = require('./controllers/beer');
-var environment = require('./configs/environment');
-// Create the app object
-var app = express();
-console.log(process.env.NODE_ENV);
-var env = process.env.NODE_ENV || 'development';
-// Connect to MongoDB (hardcoded to a local instance)
-// TODO: create config object (development/production)
-mongoose.connect(environment[env].db);
-// Parse body (we'll only deal with JSON - no need o XML crap)
-app.use(bodyparser.json());
-// Enable CORS 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    next();
-});
-// Routes. TODO: Create routes in a different file
-app.post('/user/register', usrCtrl.register);
-app.post('/user/login', usrCtrl.login);
-// Beers
-app.get('/beer', beerCtrl.getBeers);
-app.post('/beer', beerCtrl.createBeer);
-app.get('/beer/:beer_id', beerCtrl.getBeer);
-app.put('/beer/:beer_id', beerCtrl.updateBeer);
-app.delete('/beer/:beer_id', beerCtrl.deleteBeer);
-app.get('/beer/:beer_id/cheers', beerCtrl.getBeerCheers);
-app.post('/beer/:beer_id/cheers', beerCtrl.createBeerCheers);
-app.get('/beer/:beer_id/comment', beerCtrl.getBeerComments);
-app.post('/beer/:beer_id/comment', beerCtrl.createBeerComment);
-app.get('/beer/:beer_id/comment/:comment_id', beerCtrl.getBeerComment);
-app.put('/beer/:beer_id/comment/:comment_id', beerCtrl.updateBeerComment);
-app.delete('/beer/:beer_id/comment/:comment_id', beerCtrl.deleteBeerComment);
-app.post('/beer/:beer_id/comment/:comment_id/cheers', beerCtrl.createBeerCommentCheers);
-// Ping (test communication)
-app.get('/ping', function (req, res) {
-    res.send({ message: 'pong' });
-});
-// Start the server. TODO: Config object (port);
-app.listen(environment[env].port);
-console.log('Environment: ' + env);
-console.log('Brewlog API started. Listening on port ' + environment[env].port);
-//# sourceMappingURL=server.js.map
+var api = require('./controllers/api');
+
+api.setup();
+api.configureRoutes();
+api.listen();

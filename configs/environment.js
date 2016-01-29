@@ -1,11 +1,10 @@
-/// <reference path="../typings/node/node.d.ts" />
 module.exports = {
     development: {
         db: 'mongodb://localhost/beerlog',
         port: process.env.PORT || 3366
     },
     test: {
-        db: 'mongodb://localhost/beerlogtest',
+        db: 'mongodb://127.0.0.1/beerlogtest',
         port: 3667
     },
     production: {
@@ -13,4 +12,3 @@ module.exports = {
         port: process.env.PORT || 80
     }
 };
-//# sourceMappingURL=environment.js.map

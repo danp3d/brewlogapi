@@ -5,8 +5,15 @@ var userSchema = new mongoose.Schema({
     email: String,
     salt: String,
     password: String,
-    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Beer' }],
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    bookmarks: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Beer'
+    }],
+    mates: [this],
     currentToken: {
         accessToken: String,
         expiresOn: Date
@@ -39,7 +46,13 @@ userSchema.methods.comparePassword = function (pass, cb) {
 };
 userSchema.methods.getMates = function (cb) {
     var self = this;
-    return self.model('Mateship').find({ $or: [{ 'user1': self._id }, { 'user2': self._id }] }).populate('user1').populate('user2').exec(cb);
+    return self.model('Mateship').find({
+        $or: [{
+            'user1': self._id
+        }, {
+            'user2': self._id
+        }]
+    }).populate('user1').populate('user2').exec(cb);
 };
 exports.User = mongoose.model("User", userSchema);
 //# sourceMappingURL=user.js.map
