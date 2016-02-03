@@ -38,6 +38,7 @@ api.configureRoutes = function () {
     api.app.post('/user/login', usrCtrl.login);
     api.app.post('/user/mates', usrCtrl.addMate);
     api.app.get('/user/mates', usrCtrl.getMates);
+    api.app.delete('/user/mates/:mate_id', usrCtrl.deleteMate);
 
     // Beers
     api.app.get('/beer', beerCtrl.getBeers);

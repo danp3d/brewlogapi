@@ -12,6 +12,7 @@ var user = require('../models/user');
 var base = require('./base');
 var jwt = require('jwt-simple');
 var mongoose = require('mongoose');
+var bigsearch = require('bigsearch');
 
 var UserCtrl = (function (_super) {
     __extends(UserCtrl, _super);
@@ -92,13 +93,7 @@ var UserCtrl = (function (_super) {
             var user_id = _this.getUserId(req, res);
             var data = req.body;
 
-            user.User.findByIdAndUpdate(user_id, {
-                "$push": {
-                    "mates": {
-                        "_id": new mongoose.Types.ObjectId(data.mate.id)
-                    }
-                }
-            }).populate("mates").exec(function (err, usr) {
+            user.User.findById(user_id).populate("mates").exec(function (err, usr) {
                 if (err) return res.status(500).send({
                     message: 'Internal server error. ' + JSON.stringify(err)
                 });
@@ -111,6 +106,7 @@ var UserCtrl = (function (_super) {
                 usr.mates.push({
                     _id: new mongoose.Types.ObjectId(data.mate.id)
                 });
+
                 usr.save(function (err, newUsr) {
                     if (err) return res.status(500).send({
                         message: 'Internal server error. ' + JSON.stringify(err)
@@ -137,6 +133,47 @@ var UserCtrl = (function (_super) {
                 return res.status(200).send({
                     mates: usr.mates
                 });
+            });
+        };
+
+        this.deleteMate = function (req, res) {
+            var user_id = _this.getUserId(req, res);
+            var mate_id = req.params.mate_id;
+
+            if (!mate_id) return res.status(400).send({
+                message: 'mate_id is mandatory'
+            });
+
+            user.User.findById(user_id).populate("mates").exec(function (err, usr) {
+                if (err) return res.status(500).send({
+                    message: 'Internal server error. ' + JSON.stringify(err)
+                });
+
+                // Not sure why, but MongooseArray.pull isn't working. Will open an issue
+                usr.mates.sort(function (a, b) {
+                    return bigsearch.comparators.stringAsc(a._id.toString(), b._id.toString())
+                });
+
+                mateToDelete = bigsearch.binarySearch(usr.mates, mate_id, function (tgt, mate) {
+                    return bigsearch.comparators.stringAsc(mate._id.toString(), tgt.toString());
+                });
+
+                if (mateToDelete > -1) {
+                    usr.mates.splice(mateToDelete, 1);
+                    usr.mates._markModified();
+                }
+
+                usr.save(function (err, newUsr) {
+                    if (err) return res.status(500).send({
+                        message: 'Internal server error. ' + JSON.stringify(err)
+                    });
+
+                    return res.status(200).send({
+                        message: "Mate removed",
+                        user: newUsr
+                    });
+                });
+
             });
         };
     }

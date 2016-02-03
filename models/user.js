@@ -13,7 +13,10 @@ var userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Beer'
     }],
-    mates: [this],
+    mates: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     currentToken: {
         accessToken: String,
         expiresOn: Date

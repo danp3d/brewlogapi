@@ -9,6 +9,8 @@ var deletedUsers = false;
 var deletedBeers = false;
 var login = null;
 var loginToken = '';
+var usrWithMates = null;
+var usrWithMatesToken = '';
 
 describe('User', function () {
     before(function (done) {
@@ -99,12 +101,16 @@ describe('User', function () {
 
                 var newlogin = res.body.user;
                 var newToken = res.body.token;
+                usrWithMates = newlogin;
+                usrWithMatesToken = newToken;
 
                 request(url)
                     .post('/user/mates')
                     .set('Authorization', 'bearer ' + newToken)
                     .send({
-                        mate: login._id
+                        mate: {
+                            id: login._id
+                        }
                     })
                     .end(function (err, res) {
                         if (err) throw err;
@@ -113,10 +119,45 @@ describe('User', function () {
                         res.body.should.have.property('user');
                         res.body.user.should.have.property('mates');
                         res.body.user.mates.length.should.equal(1);
+                        res.body.user.mates[0].should.have.property('_id', login._id);
+
+                        usrWithMates = res.body.user;
 
                         done();
 
                     });
+            });
+    });
+
+    it('Should return mates', function (done) {
+        request(url)
+            .get('/user/mates')
+            .set('Authorization', 'bearer ' + usrWithMatesToken)
+            .end(function (err, res) {
+                if (err) throw err;
+
+                res.should.have.property('status', 200);
+                res.body.should.have.property('mates');
+                res.body.mates.length.should.equal(usrWithMates.mates.length);
+
+                done();
+            });
+    });
+
+    it('Should delete mates', function (done) {
+        request(url)
+            .delete('/user/mates/' + login._id)
+            .set('Authorization', 'bearer ' + usrWithMatesToken)
+            .send()
+            .end(function (err, res) {
+                if (err) throw err;
+
+                res.should.have.property('status', 200);
+                res.body.should.have.property('user');
+                res.body.user.should.have.property('mates');
+                res.body.user.mates.length.should.equal(0);
+
+                done();
             });
     });
 });
